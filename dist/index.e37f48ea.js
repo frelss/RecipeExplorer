@@ -619,10 +619,18 @@ const controlPagination = (goToPage)=>{
     (0, _resultsViewJsDefault.default).render(_modelJs.getSearchResultsPage(goToPage));
     (0, _paginationViewJsDefault.default).render(_modelJs.state.search);
 };
+const controlServings = (newServings)=>{
+    //Update recipe servings (in state)
+    _modelJs.updateServings(newServings);
+    //update the recipe view
+    (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
+};
 const init = ()=>{
     (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes);
+    (0, _recipeViewJsDefault.default).addHandlerUpdateServings(controlServings);
     (0, _searchViewJsDefault.default).addHandlerSearch(controlSearchResults);
     (0, _paginationViewJsDefault.default).addHandlerClick(controlPagination);
+    controlServings();
 };
 init();
 
@@ -2492,6 +2500,7 @@ parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "loadRecipe", ()=>loadRecipe);
 parcelHelpers.export(exports, "loadSearchResult", ()=>loadSearchResult);
 parcelHelpers.export(exports, "getSearchResultsPage", ()=>getSearchResultsPage);
+parcelHelpers.export(exports, "updateServings", ()=>updateServings);
 var _regeneratorRuntime = require("regenerator-runtime");
 var _config = require("./config");
 var _helpers = require("./helpers");
@@ -2547,6 +2556,12 @@ const getSearchResultsPage = (page = state.search.page)=>{
     const start = (page - 1) * state.search.resultsPerPage; //0
     const end = page * state.search.resultsPerPage; // 9
     return state.search.results.slice(start, end);
+};
+const updateServings = (newServings)=>{
+    state.recipe.ingredients.forEach((ing)=>{
+        ing.quantity = ing.quantity * newServings / state.recipe.servings;
+    });
+    state.recipe.servings = newServings;
 };
 
 },{"regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./config":"k5Hzs","./helpers":"hGI1E"}],"k5Hzs":[function(require,module,exports) {
@@ -2653,6 +2668,14 @@ class recipeView extends (0, _viewDefault.default) {
      `;
         this._clear();
         this._parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
+    addHandlerUpdateServings(handler) {
+        this._parentElement.addEventListener("click", function(e) {
+            const btn = e.target.closest(".btn--tiny");
+            if (!btn) return;
+            const { updateTo } = btn.dataset;
+            if (+updateTo > 0) handler(+updateTo);
+        });
     }
     _generateMarkup() {
         return `

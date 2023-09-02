@@ -65,6 +65,16 @@ class recipeView extends View {
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
+  addHandlerUpdateServings(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--tiny');
+      if (!btn) return;
+      const { updateTo } = btn.dataset;
+
+      if (+updateTo > 0) handler(+updateTo);
+    });
+  }
+
   _generateMarkup() {
     return `
       <figure class="recipe__fig">
